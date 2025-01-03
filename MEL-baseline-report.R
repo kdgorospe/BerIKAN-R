@@ -8,6 +8,7 @@ library(car)
 
 dat <- read.csv(file = "C:\\Users\\Kevin Gorospe\\OneDrive - Resonance\\Ber-IKAN\\BerIKAN-R\\Data\\01 Fishers Main Dataset 18052024.csv")
 # Retrieved from: https://ssgadvisors.sharepoint.com/gs/pdu/BER-IKAN/SitePages/Home.aspx 
+# File path: Documents / Technical / MEL / Data Collection / Baseline Data / Data Analysis / Quantitative Data Analysis
 
 ################################################################################################
 # Break up dat into smaller components - e.g., location, social, environmental, etc
