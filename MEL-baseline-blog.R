@@ -6,7 +6,8 @@ library(reshape2)
 library(corrplot)
 library(car)
 
-dat <- read.csv(file = "C:\\Users\\Kevin Gorospe\\OneDrive - Resonance\\Ber-IKAN\\BerIKAN-R\\Data\\01 Fishers Main Dataset 18052024.csv")
+#dat <- read.csv(file = "~C:\\Users\\Kevin Gorospe\\OneDrive - Resonance\\Ber-IKAN\\BerIKAN-R\\Data\\01 Fishers Main Dataset 18052024.csv")
+dat <- read.csv(file = '~/R/BerIKAN-R/Data/01 Fishers Main Dataset 18052024.csv')
 # Retrieved from: https://ssgadvisors.sharepoint.com/gs/pdu/BER-IKAN/SitePages/Home.aspx 
 # File path: Documents / Technical / MEL / Data Collection / Baseline Data / Data Analysis / Quantitative Data Analysis
 
@@ -267,31 +268,110 @@ df_melted <- dat_temp  %>%
   pivot_longer(cols = -Province, names_to = "variable", values_to = "value") %>%
   mutate_at(vars(matches("variable")), as.factor)
 
+# PLOT LIVELIHOODS
+df_melted_livelihood <- df_melted %>% 
+  filter(!str_detect(variable, "no\\. of months")) %>%
+  filter((!str_detect(variable, "pct income")))
+
 # Set factor levels to order plots
-df_melted$variable <- factor(df_melted$variable, 
-                             levels = c("Fishing", "no. of months fishing", "% income from fishing",
-                                        "Fish trading", "no. of months fish trading", "% income from fish trading",   
-                                        "Fish processing", "no. of months fish processing", "% income from fish processing",
-                                        "Aquaculture", "no. of months aquaculture", "% income from aquaculture",    
-                                        "Farming", "no. of months farming", "% income from farming",        
-                                        "Other", "no. of months other",  "% income from other",          
-                                        "Total no. of livelihoods"))
+df_melted_livelihood$variable <- factor(df_melted_livelihood$variable, 
+                                        levels = c("Fishing", 
+                                                   "Fish trading", 
+                                                   "Fish processing", 
+                                                   "Aquaculture",   
+                                                   "Farming",   
+                                                   "Other"))
 
 # Set factor level of Province to order x axis: WPP 711 (Kalimantan and Riau) and then WPP 715 (x6)
-levels(df_melted$Province) <- c("Kalimantan Barat", "Kepulauan Riau",
+levels(df_melted_livelihood$Province) <- c("Kalimantan Barat", "Kepulauan Riau",
                                 "Gorontalo", "Maluku", "Maluku Utara", "Papua Barat/Barat Daya", "Sulawesi Tengah", "Sulawesi Utara")
 
 # Plot box plots for each column
-ggplot(df_melted, aes(x = Province, y = value)) +
-  geom_violin() +
+ggplot(df_melted_livelihood, aes(x = Province, y = value)) +
+  #geom_violin() +
+  geom_jitter(height = 0.01) +
   labs(x = "Province", y = "Value") +
-  facet_wrap(~ variable, scales = "free_y", ncol = 3, nrow = 7) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
+  facet_wrap(~ variable, scales = "fixed", ncol = 3, nrow = 7) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10))
 
 plotfile = paste(getwd(), "/plot_livelihoods.pdf", sep = "")
 ggsave(filename = plotfile, device = "pdf", width = 11, height = 8.5)
 
+################################################################################################
+# PLOT NO. OF MONTHS PER LIVELIHOOD
+df_melted_livelihood_months <- df_melted %>% 
+  filter(str_detect(variable, "no\\. of months")) 
+
+# Set factor levels to order plots
+df_melted_livelihood_months$variable <- factor(df_melted_livelihood_months$variable, 
+                                               levels = c("no. of months fishing", 
+                                                          "no. of months fish trading", 
+                                                          "no. of months fish processing", 
+                                                          "no. of months aquaculture",  
+                                                          "no. of months farming",      
+                                                          "no. of months other"))
+
+
+# Set factor level of Province to order x axis: WPP 711 (Kalimantan and Riau) and then WPP 715 (x6)
+levels(df_melted_livelihood_months$Province) <- c("Kalimantan Barat", "Kepulauan Riau",
+                                                  "Gorontalo", "Maluku", "Maluku Utara", "Papua Barat/Barat Daya", "Sulawesi Tengah", "Sulawesi Utara")
+
+# Plot box plots for each column
+ggplot(df_melted_livelihood_months, aes(x = Province, y = value)) +
+  #geom_violin() +
+  geom_jitter() +
+  labs(x = "Province", y = "No. of Months") +
+  facet_wrap(~ variable, scales = "fixed", ncol = 3) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
+  scale_y_continuous(limits = c(0, 12.0), breaks = c(0, 2, 4, 6, 8, 10, 12)) +
+  #theme_minimal() +
+  #theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 10))
+  theme(axis.text.y = element_text(hjust = 1, size = 10),
+        axis.text.x = element_text(angle = 50, hjust = 1, size = 10),
+        axis.title = element_text(size = 12),
+        strip.text.x = element_text(size = 10))
+
+plotfile = paste(getwd(), "/plot_livelihoods_months.png", sep = "")
+ggsave(filename = plotfile, width = 11, height = 8.5, units = "in", dpi = 300, bg = "white")
+
+#ggsave("plot_coeffs_net_income.png", width = 8, height = 6, units = "in", dpi = 300, bg = "white")
+
+################################################################################################
+# PLOT PERCENT INCOME PER LIVELIHOOD
+df_melted_livelihood_income <- df_melted %>% 
+  filter((str_detect(variable, "pct income"))) %>%
+  mutate(variable = str_replace_all(variable, "pct", "%"))
+
+# Set factor levels to order plots
+df_melted_livelihood_income$variable <- factor(df_melted_livelihood_income$variable, 
+                             levels = c("% income from fishing",
+                                        "% income from fish trading",   
+                                        "% income from fish processing",
+                                        "% income from aquaculture",    
+                                        "% income from farming",        
+                                        "% income from other"))
+
+
+# Set factor level of Province to order x axis: WPP 711 (Kalimantan and Riau) and then WPP 715 (x6)
+levels(df_melted_livelihood_income$Province) <- c("Kalimantan Barat", "Kepulauan Riau",
+                                                  "Gorontalo", "Maluku", "Maluku Utara", "Papua Barat/Barat Daya", "Sulawesi Tengah", "Sulawesi Utara")
+
+# Plot box plots for each column
+ggplot(df_melted_livelihood_income, aes(x = Province, y = value)) +
+  #geom_violin() +
+  geom_jitter() +
+  labs(x = "Province", y = "Percent of total income") +
+  facet_wrap(~ variable, scales = "fixed", ncol = 3) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
+  scale_y_continuous(limits = c(0, 100), breaks = c(0, 20, 40, 60, 80, 100)) +
+  #theme_minimal() +
+  theme(axis.text.y = element_text(hjust = 1, size = 10),
+        axis.text.x = element_text(angle = 50, hjust = 1, size = 10),
+        axis.title = element_text(size = 12),
+        strip.text.x = element_text(size = 10))
+
+
+plotfile = paste(getwd(), "/plot_livelihoods_income.png", sep = "")
+ggsave(filename = plotfile, width = 11, height = 8.5, units = "in", dpi = 300, bg = "white")
 ################################################################################################
 # Plot number of fishers data
 # Select columns - Remove City
@@ -573,7 +653,7 @@ ggplot(plot_data, aes(y = term, x = estimate)) +
   geom_errorbar(aes(xmin = lower, xmax = upper), width = 0.2, color = "black", size = 1) +
   geom_point(size = 3) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "red") +
-  labs(y = "", x = "Effect on Monthly Net Income (in 100,000 IDR)") +
+  labs(y = "", x = "Effect on Monthly Net Income") +
   theme_minimal() +
   theme(axis.text.y = element_text(hjust = 1, size = 12),
         axis.text.x = element_text(size = 12),
