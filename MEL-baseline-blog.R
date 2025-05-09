@@ -325,11 +325,12 @@ ggplot(df_melted_livelihood_months, aes(x = Province, y = value)) +
   facet_wrap(~ variable, scales = "fixed", ncol = 3) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
   scale_y_continuous(limits = c(0, 12.0), breaks = c(0, 2, 4, 6, 8, 10, 12)) +
   #theme_minimal() +
-  #theme(axis.text.x = element_text(angle = 50, hjust = 1, size = 10))
-  theme(axis.text.y = element_text(hjust = 1, size = 10),
-        axis.text.x = element_text(angle = 50, hjust = 1, size = 10),
+  theme(axis.text.y = element_text(hjust = 1, size = 12),
+        axis.text.x = element_text(angle = 50, hjust = 1, size = 12),
         axis.title = element_text(size = 12),
-        strip.text.x = element_text(size = 10))
+        strip.text.x = element_text(size = 12),
+        plot.margin = margin(l = 15))
+
 
 plotfile = paste(getwd(), "/plot_livelihoods_months.png", sep = "")
 ggsave(filename = plotfile, width = 11, height = 8.5, units = "in", dpi = 300, bg = "white")
@@ -364,10 +365,10 @@ ggplot(df_melted_livelihood_income, aes(x = Province, y = value)) +
   facet_wrap(~ variable, scales = "fixed", ncol = 3) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
   scale_y_continuous(limits = c(0, 100), breaks = c(0, 20, 40, 60, 80, 100)) +
   #theme_minimal() +
-  theme(axis.text.y = element_text(hjust = 1, size = 10),
-        axis.text.x = element_text(angle = 50, hjust = 1, size = 10),
+  theme(axis.text.y = element_text(hjust = 1, size = 12),
+        axis.text.x = element_text(angle = 50, hjust = 1, size = 12),
         axis.title = element_text(size = 12),
-        strip.text.x = element_text(size = 10))
+        strip.text.x = element_text(size = 12))
 
 
 plotfile = paste(getwd(), "/plot_livelihoods_income.png", sep = "")
