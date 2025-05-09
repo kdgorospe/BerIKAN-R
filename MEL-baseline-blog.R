@@ -301,7 +301,8 @@ ggsave(filename = plotfile, device = "pdf", width = 11, height = 8.5)
 ################################################################################################
 # PLOT NO. OF MONTHS PER LIVELIHOOD
 df_melted_livelihood_months <- df_melted %>% 
-  filter(str_detect(variable, "no\\. of months")) 
+  filter(str_detect(variable, "no\\. of months")) %>%
+  mutate(value = replace_na(value, 0))
 
 # Set factor levels to order plots
 df_melted_livelihood_months$variable <- factor(df_melted_livelihood_months$variable, 
@@ -325,10 +326,10 @@ ggplot(df_melted_livelihood_months, aes(x = Province, y = value)) +
   facet_wrap(~ variable, scales = "fixed", ncol = 3) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
   scale_y_continuous(limits = c(0, 12.0), breaks = c(0, 2, 4, 6, 8, 10, 12)) +
   #theme_minimal() +
-  theme(axis.text.y = element_text(hjust = 1, size = 12),
-        axis.text.x = element_text(angle = 50, hjust = 1, size = 12),
-        axis.title = element_text(size = 12),
-        strip.text.x = element_text(size = 12),
+  theme(axis.text.y = element_text(hjust = 1, size = 13),
+        axis.text.x = element_text(angle = 50, hjust = 1, size = 13),
+        axis.title = element_text(size = 13),
+        strip.text.x = element_text(size = 13),
         plot.margin = margin(l = 15))
 
 
@@ -341,7 +342,8 @@ ggsave(filename = plotfile, width = 11, height = 8.5, units = "in", dpi = 300, b
 # PLOT PERCENT INCOME PER LIVELIHOOD
 df_melted_livelihood_income <- df_melted %>% 
   filter((str_detect(variable, "pct income"))) %>%
-  mutate(variable = str_replace_all(variable, "pct", "%"))
+  mutate(variable = str_replace_all(variable, "pct", "%")) %>%
+  mutate(value = replace_na(value, 0))
 
 # Set factor levels to order plots
 df_melted_livelihood_income$variable <- factor(df_melted_livelihood_income$variable, 
@@ -360,7 +362,7 @@ levels(df_melted_livelihood_income$Province) <- c("Kalimantan Barat", "Kepulauan
 # Plot box plots for each column
 ggplot(df_melted_livelihood_income, aes(x = Province, y = value)) +
   #geom_violin() +
-  geom_jitter() +
+  geom_jitter(height = 5) +
   labs(x = "Province", y = "Percent of total income") +
   facet_wrap(~ variable, scales = "fixed", ncol = 3) +  # Create separate plots for each column; free_y allows y variable to vary; use ncol to set number of columns
   scale_y_continuous(limits = c(0, 100), breaks = c(0, 20, 40, 60, 80, 100)) +
